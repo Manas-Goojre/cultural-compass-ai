@@ -255,7 +255,7 @@ function AppContent() {
               }`}
             >
               <span className={`h-1.5 w-1.5 rounded-full ${health?.status === "ok" ? "bg-green-400 animate-pulse-glow" : "bg-slate-500"}`} />
-              {health?.status === "ok" ? "Gemini connected" : "Connecting…"}
+              {health?.status === "ok" ? "Agent connected" : "Connecting…"}
             </span>
             {user && (
               <div className="flex items-center gap-2 glass rounded-full pl-1 pr-3 py-1">
