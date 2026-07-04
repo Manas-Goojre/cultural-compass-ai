@@ -4,6 +4,8 @@ AI-first travel platform for **PromptWars — Destination Discovery & Cultural E
 
 Discover destinations, explore authentic culture, generate itineraries, and experience immersive AI storytelling — powered by Google Gemini.
 
+**🌐 Live demo:** https://manas-goojre.github.io/cultural-compass-ai/
+
 ## Features
 
 - Personalized destination discovery with explainable recommendations

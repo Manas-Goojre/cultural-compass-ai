@@ -31,9 +31,14 @@ Based on the official submission guide.
 
 ## Live Demo URLs
 
+- **🌐 Live app (GitHub Pages):** https://manas-goojre.github.io/cultural-compass-ai/
 - **Local backend:** http://localhost:8000
 - **Local frontend:** http://localhost:5173
-- **Cloud Run:** Requires GCP billing enabled on `promptwars-381948` — run `.\deploy.ps1` after enabling billing
+- **Cloud Run (optional, full backend):** Requires GCP billing on `promptwars-381948` — run `.\deploy.ps1` after enabling billing
+
+> The live site is a static build that calls Gemini directly (API key stored as an encrypted
+> GitHub Actions secret, never committed). The FastAPI backend in `/backend` remains the primary
+> architecture and runs locally or on Cloud Run.
 
 ## Before Submitting on Hack2Skill
 
