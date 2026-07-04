@@ -62,7 +62,7 @@ export default function MapView({ points = [], routes = [], height = 420 }) {
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden glass-card" style={{ height }}>
+    <div className="rounded-2xl overflow-hidden glass-card" style={{ height }} role="region" aria-label="Trip itinerary map">
       <MapContainer center={center} zoom={11} style={{ height: "100%", width: "100%", background: "#0c1322" }} scrollWheelZoom={false}>
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"

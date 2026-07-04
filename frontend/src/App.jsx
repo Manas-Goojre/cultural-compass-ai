@@ -238,6 +238,7 @@ function AppContent() {
 
   return (
     <div className="app-bg min-h-screen relative">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <TravelBackdrop />
       <header className="sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl bg-ink-950/70">
         <div className="max-w-7xl mx-auto px-4 py-3.5 flex items-center justify-between">
@@ -275,7 +276,7 @@ function AppContent() {
 
       <Hero onStart={() => scrollTo(builderRef)} onExample={handleExample} />
 
-      <main className="max-w-7xl mx-auto px-4 pb-16 space-y-12 relative z-10">
+      <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto px-4 pb-16 space-y-12 relative z-10">
         <div className="flex justify-center">
           <div className="glass rounded-full p-1 inline-flex gap-1" role="tablist" aria-label="App mode">
             <button
@@ -307,7 +308,7 @@ function AppContent() {
               <TripPlanner plan={plan} setPlan={setPlan} onSubmit={handlePlanTrip} loading={planLoading} />
             </Reveal>
             {planLoading && (
-              <div className="glass-card rounded-3xl p-8">
+              <div className="glass-card rounded-3xl p-8" role="status" aria-live="polite">
                 <div className="flex items-center gap-3 mb-6 text-slate-300">
                   <div className="flex items-center gap-1.5">
                     <span className="typing-dot" />
@@ -339,7 +340,7 @@ function AppContent() {
 
         <div ref={resultsRef} className="scroll-mt-24">
           {loading && (
-            <section>
+            <section role="status" aria-live="polite" aria-label="Loading recommendations">
               <div className="h-8 w-64 skeleton rounded-lg mb-6" />
               <div className="grid md:grid-cols-2 gap-5">
                 {Array.from({ length: 4 }).map((_, i) => (

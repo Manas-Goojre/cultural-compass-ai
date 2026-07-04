@@ -40,8 +40,9 @@ export default function TripPlanner({ plan, setPlan, onSubmit, loading }) {
       <div className="space-y-8">
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-semibold text-slate-200 mb-2 block">Destination <span className="text-slate-500 font-normal">(optional)</span></label>
+            <label htmlFor="tp-destination" className="text-sm font-semibold text-slate-200 mb-2 block">Destination <span className="text-slate-500 font-normal">(optional)</span></label>
             <input
+              id="tp-destination"
               className="field"
               placeholder="e.g. Kyoto, Japan — or leave blank for a suggestion"
               value={plan.destination}
@@ -49,8 +50,9 @@ export default function TripPlanner({ plan, setPlan, onSubmit, loading }) {
             />
           </div>
           <div>
-            <label className="text-sm font-semibold text-slate-200 mb-2 block">Start date <span className="text-slate-500 font-normal">(optional)</span></label>
+            <label htmlFor="tp-start-date" className="text-sm font-semibold text-slate-200 mb-2 block">Start date <span className="text-slate-500 font-normal">(optional)</span></label>
             <input
+              id="tp-start-date"
               type="date"
               className="field"
               value={plan.start_date}
@@ -61,16 +63,18 @@ export default function TripPlanner({ plan, setPlan, onSubmit, loading }) {
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-semibold text-slate-200">Total budget</label>
+            <label htmlFor="tp-budget" className="text-sm font-semibold text-slate-200">Total budget</label>
             <span className="text-gold font-display font-bold">{Number(plan.budget).toLocaleString()} {plan.currency}</span>
           </div>
           <input
+            id="tp-budget"
             type="range"
             min={100}
             max={20000}
             step={100}
             value={plan.budget}
             onChange={(e) => setPlan((p) => ({ ...p, budget: Number(e.target.value) }))}
+            aria-valuetext={`${Number(plan.budget).toLocaleString()} ${plan.currency}`}
             className="w-full accent-[#ff6a4d]"
           />
           <div className="flex justify-between text-xs text-slate-500 mt-1">
@@ -80,30 +84,30 @@ export default function TripPlanner({ plan, setPlan, onSubmit, loading }) {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <label className="text-sm font-semibold text-slate-200 mb-2 block">Days</label>
-            <input type="number" min={1} max={30} className="field" value={plan.days} onChange={(e) => setPlan((p) => ({ ...p, days: Number(e.target.value) }))} />
+            <label htmlFor="tp-days" className="text-sm font-semibold text-slate-200 mb-2 block">Days</label>
+            <input id="tp-days" type="number" min={1} max={30} className="field" value={plan.days} onChange={(e) => setPlan((p) => ({ ...p, days: Number(e.target.value) }))} />
           </div>
           <div>
-            <label className="text-sm font-semibold text-slate-200 mb-2 block">Travelers</label>
-            <input type="number" min={1} max={30} className="field" value={plan.travelers} onChange={(e) => setPlan((p) => ({ ...p, travelers: Number(e.target.value) }))} />
+            <label htmlFor="tp-travelers" className="text-sm font-semibold text-slate-200 mb-2 block">Travelers</label>
+            <input id="tp-travelers" type="number" min={1} max={30} className="field" value={plan.travelers} onChange={(e) => setPlan((p) => ({ ...p, travelers: Number(e.target.value) }))} />
           </div>
           <div>
-            <label className="text-sm font-semibold text-slate-200 mb-2 block">Transport</label>
-            <select className="field" value={plan.transport} onChange={(e) => setPlan((p) => ({ ...p, transport: e.target.value }))}>
+            <label htmlFor="tp-transport" className="text-sm font-semibold text-slate-200 mb-2 block">Transport</label>
+            <select id="tp-transport" className="field" value={plan.transport} onChange={(e) => setPlan((p) => ({ ...p, transport: e.target.value }))}>
               {TRANSPORT.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </div>
           <div>
-            <label className="text-sm font-semibold text-slate-200 mb-2 block">Hotel</label>
-            <select className="field" value={plan.hotel_preference} onChange={(e) => setPlan((p) => ({ ...p, hotel_preference: e.target.value }))}>
+            <label htmlFor="tp-hotel" className="text-sm font-semibold text-slate-200 mb-2 block">Hotel</label>
+            <select id="tp-hotel" className="field" value={plan.hotel_preference} onChange={(e) => setPlan((p) => ({ ...p, hotel_preference: e.target.value }))}>
               {HOTELS.map((h) => <option key={h} value={h}>{h}</option>)}
             </select>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-semibold text-slate-200 mb-3 block">Travel style</label>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
+          <label id="tp-style-label" className="text-sm font-semibold text-slate-200 mb-3 block">Travel style</label>
+          <div role="group" aria-labelledby="tp-style-label" className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
             {STYLES.map((s) => (
               <button
                 key={s.id}
@@ -122,8 +126,8 @@ export default function TripPlanner({ plan, setPlan, onSubmit, loading }) {
         </div>
 
         <div>
-          <label className="text-sm font-semibold text-slate-200 mb-3 block">Interests <span className="text-slate-500 font-normal">· multi-select</span></label>
-          <div className="flex flex-wrap gap-2.5">
+          <label id="tp-interests-label" className="text-sm font-semibold text-slate-200 mb-3 block">Interests <span className="text-slate-500 font-normal">· multi-select</span></label>
+          <div role="group" aria-labelledby="tp-interests-label" className="flex flex-wrap gap-2.5">
             {INTERESTS.map((item) => (
               <button
                 key={item}
