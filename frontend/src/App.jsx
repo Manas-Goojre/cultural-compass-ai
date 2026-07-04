@@ -1,11 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { api, getAuthToken, getUser, setAuthToken, setUser } from "./api/client";
 import LoginScreen from "./components/LoginScreen";
+import Hero from "./components/Hero";
+import PopularDestinations from "./components/PopularDestinations";
 import TripBuilder from "./components/TripBuilder";
 import DestinationCard from "./components/DestinationCard";
-import DestinationDetail, { TABS } from "./components/DestinationDetail";
+import DestinationDetail from "./components/DestinationDetail";
 import RefinePanel from "./components/RefinePanel";
+import Reveal from "./components/ui/Reveal";
+import TravelBackdrop from "./components/ui/TravelBackdrop";
+import { SkeletonCard } from "./components/ui/Skeleton";
+import { ToastProvider, useToast } from "./components/ui/Toast";
 
 const DEFAULT_PROFILE = {
   interests: [],
@@ -32,6 +38,7 @@ const TAB_API = {
 };
 
 function AppContent() {
+  const notify = useToast();
   const [view, setView] = useState(getAuthToken() || !import.meta.env.VITE_GOOGLE_CLIENT_ID ? "app" : "login");
   const [user, setUserState] = useState(getUser());
   const [profile, setProfile] = useState(DEFAULT_PROFILE);
@@ -46,22 +53,31 @@ function AppContent() {
   const [refineLoading, setRefineLoading] = useState(false);
   const [health, setHealth] = useState(null);
 
+  const builderRef = useRef(null);
+  const resultsRef = useRef(null);
+  const detailRef = useRef(null);
+
   useEffect(() => {
     api.health().then(setHealth).catch(() => setHealth({ status: "error" }));
   }, []);
 
-  const handleGoogleSuccess = useCallback(async (response) => {
-    try {
-      const credential = response.credential;
-      setAuthToken(credential);
-      const authRes = await api.authGoogle(credential);
-      setUser(authRes.user);
-      setUserState(authRes.user);
-      setView("app");
-    } catch (err) {
-      alert(err.message);
-    }
-  }, []);
+  const scrollTo = (ref) => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const handleGoogleSuccess = useCallback(
+    async (response) => {
+      try {
+        const credential = response.credential;
+        setAuthToken(credential);
+        const authRes = await api.authGoogle(credential);
+        setUser(authRes.user);
+        setUserState(authRes.user);
+        setView("app");
+      } catch (err) {
+        notify(err.message);
+      }
+    },
+    [notify]
+  );
 
   const handleSkipLogin = () => {
     setAuthToken("demo");
@@ -70,16 +86,32 @@ function AppContent() {
     setView("app");
   };
 
+  const handleExample = (text) => {
+    setProfile((p) => ({ ...p, preferred_regions: [text] }));
+    scrollTo(builderRef);
+  };
+
+  const handlePopular = (place) => {
+    setProfile((p) => ({
+      ...p,
+      preferred_regions: [place],
+      interests: p.interests.length ? p.interests : ["History", "Food"],
+    }));
+    scrollTo(builderRef);
+    notify(`${place} loaded — review and hit Discover ✦`, "success");
+  };
+
   const handleDiscover = async () => {
     setLoading(true);
     setDiscoverResult(null);
     setSelectedDest(null);
     setTabData({});
+    setTimeout(() => scrollTo(resultsRef), 100);
     try {
       const result = await api.discover(profile);
       setDiscoverResult(result);
     } catch (err) {
-      alert(err.message);
+      notify(err.message);
     } finally {
       setLoading(false);
     }
@@ -95,12 +127,12 @@ function AppContent() {
         const result = await fn(profile, destName);
         setTabData((prev) => ({ ...prev, [tabId]: result }));
       } catch (err) {
-        alert(err.message);
+        notify(err.message);
       } finally {
         setLoadingTab(false);
       }
     },
-    [profile, tabData]
+    [profile, tabData, notify]
   );
 
   useEffect(() => {
@@ -113,6 +145,8 @@ function AppContent() {
     setSelectedDest(dest);
     setActiveTab("culture");
     setTabData({});
+    setRefineResult(null);
+    setTimeout(() => scrollTo(detailRef), 100);
   };
 
   const handleGenerateItinerary = async () => {
@@ -122,7 +156,7 @@ function AppContent() {
       const result = await api.itinerary(profile, `${selectedDest.name}, ${selectedDest.country}`);
       setTabData((prev) => ({ ...prev, itinerary: result }));
     } catch (err) {
-      alert(err.message);
+      notify(err.message);
     } finally {
       setLoadingTab(false);
     }
@@ -135,7 +169,7 @@ function AppContent() {
       const result = await api.story(profile, `${selectedDest.name}, ${selectedDest.country}`, "cultural immersion");
       setTabData((prev) => ({ ...prev, story: result }));
     } catch (err) {
-      alert(err.message);
+      notify(err.message);
     } finally {
       setLoadingTab(false);
     }
@@ -147,8 +181,9 @@ function AppContent() {
       const summary = discoverResult?.summary || JSON.stringify(selectedDest);
       const result = await api.refine(profile, summary, refineText);
       setRefineResult(result);
+      notify("Recommendations refined", "success");
     } catch (err) {
-      alert(err.message);
+      notify(err.message);
     } finally {
       setRefineLoading(false);
     }
@@ -165,76 +200,131 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen aurora-bg">
-      <header className="border-b border-[#2a4a52]/60 backdrop-blur-md sticky top-0 z-50 bg-[#0b1f24]/80">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div className="app-bg min-h-screen relative">
+      <TravelBackdrop />
+      <header className="sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl bg-ink-950/70">
+        <div className="max-w-7xl mx-auto px-4 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">🧭</span>
+            <div className="h-10 w-10 rounded-xl glass flex items-center justify-center text-xl shadow-glow">🧭</div>
             <div>
-              <h1 className="font-display text-2xl font-bold leading-none">Cultural Compass</h1>
-              <p className="text-xs text-[#7a9499]">Destination Discovery & Cultural Experiences</p>
+              <h1 className="font-display text-xl font-bold leading-none">Cultural Compass</h1>
+              <p className="text-[11px] text-slate-500">Destination Discovery &amp; Cultural Experiences</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {health?.status === "ok" && (
-              <span className="text-xs text-emerald-400 hidden sm:inline">● Gemini connected</span>
-            )}
+          <div className="flex items-center gap-3">
+            <span
+              className={`hidden sm:flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full glass ${
+                health?.status === "ok" ? "text-green-400" : "text-slate-400"
+              }`}
+            >
+              <span className={`h-1.5 w-1.5 rounded-full ${health?.status === "ok" ? "bg-green-400 animate-pulse-glow" : "bg-slate-500"}`} />
+              {health?.status === "ok" ? "Gemini connected" : "Connecting…"}
+            </span>
             {user && (
-              <div className="flex items-center gap-2">
-                {user.picture && <img src={user.picture} alt="" className="w-8 h-8 rounded-full" />}
-                <span className="text-sm text-[#c8d6d9] hidden sm:inline">{user.name}</span>
+              <div className="flex items-center gap-2 glass rounded-full pl-1 pr-3 py-1">
+                {user.picture ? (
+                  <img src={user.picture} alt="" className="w-7 h-7 rounded-full" />
+                ) : (
+                  <span className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-xs font-bold text-white">
+                    {(user.name || "T")[0]}
+                  </span>
+                )}
+                <span className="text-sm text-slate-300 hidden sm:inline">{user.name}</span>
               </div>
             )}
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <TripBuilder profile={profile} setProfile={setProfile} onSubmit={handleDiscover} loading={loading} />
+      <Hero onStart={() => scrollTo(builderRef)} onExample={handleExample} />
 
-        {discoverResult && (
-          <section className="fade-up">
-            <h2 className="font-display text-3xl font-bold mb-2">Recommended Destinations</h2>
-            <p className="text-[#9eb4b8] mb-6">{discoverResult.summary}</p>
-            <div className="grid md:grid-cols-2 gap-4">
-              {(discoverResult.destinations || []).map((dest, i) => (
-                <DestinationCard
-                  key={i}
-                  destination={dest}
-                  onSelect={handleSelectDest}
-                  selected={selectedDest?.name === dest.name}
-                />
-              ))}
-            </div>
-          </section>
-        )}
+      <main className="max-w-7xl mx-auto px-4 pb-16 space-y-12 relative z-10">
+        <PopularDestinations onPick={handlePopular} />
+
+        <div ref={builderRef} className="scroll-mt-24">
+          <Reveal>
+            <TripBuilder profile={profile} setProfile={setProfile} onSubmit={handleDiscover} loading={loading} />
+          </Reveal>
+        </div>
+
+        <div ref={resultsRef} className="scroll-mt-24">
+          {loading && (
+            <section>
+              <div className="h-8 w-64 skeleton rounded-lg mb-6" />
+              <div className="grid md:grid-cols-2 gap-5">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {!loading && discoverResult && (
+            <section>
+              <Reveal>
+                <span className="eyebrow mb-2 flex"><span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-glow" /> Curated for you</span>
+                <h2 className="font-display text-3xl sm:text-4xl font-bold mb-2">Recommended Destinations</h2>
+                <p className="text-slate-400 mb-6 max-w-3xl">{discoverResult.summary}</p>
+              </Reveal>
+              <div className="grid md:grid-cols-2 gap-5">
+                {(discoverResult.destinations || []).map((dest, i) => (
+                  <Reveal key={i} delay={i * 90}>
+                    <DestinationCard
+                      destination={dest}
+                      onSelect={handleSelectDest}
+                      selected={selectedDest?.name === dest.name}
+                    />
+                  </Reveal>
+                ))}
+              </div>
+              {discoverResult.uncertainty_notes?.length > 0 && (
+                <div className="mt-6 p-4 rounded-xl bg-gold/5 border border-gold/25 text-sm text-slate-300/80">
+                  <p className="text-xs text-gold font-semibold mb-2">⚠ Good to know</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {discoverResult.uncertainty_notes.map((n, i) => (
+                      <li key={i}>{n}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+          )}
+        </div>
 
         {selectedDest && (
-          <section className="grid lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <DestinationDetail
-                destination={selectedDest}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                tabData={tabData}
-                loadingTab={loadingTab}
-                onGenerateItinerary={handleGenerateItinerary}
-                onGenerateStory={handleGenerateStory}
+          <div ref={detailRef} className="scroll-mt-24">
+            <section className="grid lg:grid-cols-3 gap-6 items-start">
+              <div className="lg:col-span-2">
+                <DestinationDetail
+                  destination={selectedDest}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  tabData={tabData}
+                  loadingTab={loadingTab}
+                  onGenerateItinerary={handleGenerateItinerary}
+                  onGenerateStory={handleGenerateStory}
+                />
+              </div>
+              <RefinePanel
+                value={refineText}
+                onChange={setRefineText}
+                onSubmit={handleRefine}
+                loading={refineLoading}
+                result={refineResult}
               />
-            </div>
-            <RefinePanel
-              value={refineText}
-              onChange={setRefineText}
-              onSubmit={handleRefine}
-              loading={refineLoading}
-              result={refineResult}
-            />
-          </section>
+            </section>
+          </div>
         )}
       </main>
 
-      <footer className="text-center py-8 text-xs text-[#5a757a]">
-        Cultural Compass AI · PromptWars · Powered by Google Gemini
+      <footer className="border-t border-white/5 py-8">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <span>Cultural Compass AI · PromptWars</span>
+          <span className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal animate-pulse-glow" />
+            Powered by Google Gemini · Grounded &amp; explainable
+          </span>
+        </div>
       </footer>
     </div>
   );
@@ -245,7 +335,9 @@ export default function App() {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </GoogleOAuthProvider>
   );
 }
