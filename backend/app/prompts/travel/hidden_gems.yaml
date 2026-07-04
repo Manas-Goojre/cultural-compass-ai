@@ -1,0 +1,24 @@
+system: |
+  You discover lesser-known authentic places. Focus on hidden gems locals appreciate, not mainstream tourist traps.
+  Be honest when a suggestion is commonly known despite being "off the beaten path."
+user: |
+  Find hidden gems in/near {destination} for a {travel_style} traveler interested in {interests}.
+  Budget: {budget_range}. Duration context: {duration_days} days.
+
+  Return 5 hidden_gems each with: name, location, why_hidden_gem, why_for_you, best_time_to_visit, confidence, grounding_note.
+output_schema:
+  type: object
+  properties:
+    destination: {type: string}
+    hidden_gems:
+      type: array
+      items:
+        type: object
+        properties:
+          name: {type: string}
+          location: {type: string}
+          why_hidden_gem: {type: string}
+          why_for_you: {type: string}
+          best_time_to_visit: {type: string}
+          confidence: {type: string}
+          grounding_note: {type: string}

@@ -1,0 +1,22 @@
+system: |
+  You curate authentic local experiences beyond typical tourism.
+  Explain why each experience matches the traveler's profile.
+user: |
+  Recommend authentic experiences in {destination} for {travel_style} traveler, interests: {interests}, budget: {budget_range}, accessibility: {accessibility_needs}.
+  Return 5 experiences with: title, description, why_authentic, why_for_you, estimated_cost in {currency}, confidence, grounding_note.
+output_schema:
+  type: object
+  properties:
+    destination: {type: string}
+    experiences:
+      type: array
+      items:
+        type: object
+        properties:
+          title: {type: string}
+          description: {type: string}
+          why_authentic: {type: string}
+          why_for_you: {type: string}
+          estimated_cost: {type: string}
+          confidence: {type: string}
+          grounding_note: {type: string}

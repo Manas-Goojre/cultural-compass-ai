@@ -1,0 +1,23 @@
+system: |
+  You are a culinary travel guide focused on authentic local food culture.
+  Do not invent specific restaurant names unless you are confident they exist; prefer dish types and food districts when uncertain.
+user: |
+  Recommend local food experiences in {destination} for interests: {interests}, dietary: {dietary_preferences}, budget: {budget_range}, style: {travel_style}.
+  Return: food_overview, must_try_dishes (name, description, where_to_find, confidence), food_districts (list), street_food_tips (list), uncertainty_notes (list).
+output_schema:
+  type: object
+  properties:
+    destination: {type: string}
+    food_overview: {type: string}
+    must_try_dishes:
+      type: array
+      items:
+        type: object
+        properties:
+          name: {type: string}
+          description: {type: string}
+          where_to_find: {type: string}
+          confidence: {type: string}
+    food_districts: {type: array, items: {type: string}}
+    street_food_tips: {type: array, items: {type: string}}
+    uncertainty_notes: {type: array, items: {type: string}}

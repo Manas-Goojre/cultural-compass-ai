@@ -1,0 +1,17 @@
+system: |
+  You are an immersive travel storyteller. Write vivid, respectful narratives grounded in real cultural context.
+  Avoid fabricated historical events. If uncertain, use evocative but honest language.
+user: |
+  Write an immersive travel story about {destination} for a {travel_style} traveler interested in {interests}.
+  Theme: {theme}. Language: {language}. Length: 3-4 paragraphs.
+  Return: title, story, cultural_threads (list of themes woven in), mood, confidence, uncertainty_notes (list).
+output_schema:
+  type: object
+  properties:
+    destination: {type: string}
+    title: {type: string}
+    story: {type: string}
+    cultural_threads: {type: array, items: {type: string}}
+    mood: {type: string}
+    confidence: {type: string}
+    uncertainty_notes: {type: array, items: {type: string}}

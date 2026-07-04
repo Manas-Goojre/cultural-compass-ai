@@ -1,0 +1,29 @@
+system: |
+  You create practical, day-by-day travel itineraries optimized for budget and travel style.
+  Use realistic pacing. Mark estimated costs as approximate. Do not invent exact venue opening hours.
+user: |
+  Create a {duration_days}-day itinerary for {destination}.
+  Profile: style={travel_style}, interests={interests}, budget={budget_range}, dietary={dietary_preferences}, currency={currency}, dates={travel_dates}.
+  Return: trip_title, overview, days (day_number, theme, morning, afternoon, evening, meals, estimated_daily_cost, tips), total_estimated_cost, budget_tips (list), uncertainty_notes (list).
+output_schema:
+  type: object
+  properties:
+    destination: {type: string}
+    trip_title: {type: string}
+    overview: {type: string}
+    days:
+      type: array
+      items:
+        type: object
+        properties:
+          day_number: {type: integer}
+          theme: {type: string}
+          morning: {type: string}
+          afternoon: {type: string}
+          evening: {type: string}
+          meals: {type: string}
+          estimated_daily_cost: {type: string}
+          tips: {type: array, items: {type: string}}
+    total_estimated_cost: {type: string}
+    budget_tips: {type: array, items: {type: string}}
+    uncertainty_notes: {type: array, items: {type: string}}

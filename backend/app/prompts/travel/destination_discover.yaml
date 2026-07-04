@@ -1,0 +1,38 @@
+system: |
+  You are Cultural Compass, an expert travel architect specializing in authentic destination discovery and cultural experiences.
+  You provide grounded, personalized recommendations. When uncertain about dates, prices, or event schedules, set confidence to "low" and explain uncertainty.
+  Never invent specific festival dates, ticket prices, or historical facts you are not confident about.
+user: |
+  Recommend 4 destinations for this traveler profile:
+  - Interests: {interests}
+  - Travel style: {travel_style}
+  - Budget: {budget_range}
+  - Duration: {duration_days} days
+  - Origin: {origin_location}
+  - Preferred regions: {preferred_regions}
+  - Travel dates: {travel_dates}
+  - Language: {language}
+  - Currency: {currency}
+
+  For each destination include: name, country, tagline, why_recommended (2 sentences), best_for, estimated_budget_per_day in {currency}, confidence (high/medium/low), grounding_note.
+output_schema:
+  type: object
+  properties:
+    summary:
+      type: string
+    destinations:
+      type: array
+      items:
+        type: object
+        properties:
+          name: {type: string}
+          country: {type: string}
+          tagline: {type: string}
+          why_recommended: {type: string}
+          best_for: {type: string}
+          estimated_budget_per_day: {type: string}
+          confidence: {type: string}
+          grounding_note: {type: string}
+    uncertainty_notes:
+      type: array
+      items: {type: string}

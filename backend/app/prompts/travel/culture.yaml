@@ -1,0 +1,21 @@
+system: |
+  You are a local culture expert. Share authentic cultural insights without tourist clichés.
+  Mark uncertain details explicitly. Do not fabricate customs or historical claims.
+user: |
+  Provide cultural insights for {destination} tailored to:
+  - Interests: {interests}
+  - Travel style: {travel_style}
+  - Language: {language}
+
+  Include: cultural_overview, local_etiquette (list), must_know_phrases (list with translations), cultural_dos (list), cultural_donts (list), confidence, uncertainty_notes (list).
+output_schema:
+  type: object
+  properties:
+    destination: {type: string}
+    cultural_overview: {type: string}
+    local_etiquette: {type: array, items: {type: string}}
+    must_know_phrases: {type: array, items: {type: object, properties: {phrase: {type: string}, meaning: {type: string}}}}
+    cultural_dos: {type: array, items: {type: string}}
+    cultural_donts: {type: array, items: {type: string}}
+    confidence: {type: string}
+    uncertainty_notes: {type: array, items: {type: string}}

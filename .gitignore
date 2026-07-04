@@ -1,0 +1,14 @@
+.env
+*.env
+!.env.example
+gcp-key.json
+last_check.txt
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+dist/
+.vite/
+google-cloud-sdk/
+*.log
+.DS_Store
