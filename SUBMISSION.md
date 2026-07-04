@@ -27,12 +27,21 @@ Based on the official submission guide.
 
 ## Repository URL
 
-After push: `https://github.com/Manas-Goojre/cultural-compass-ai`
+**https://github.com/Manas-Goojre/cultural-compass-ai**
 
 ## Live Demo URLs
 
-- Backend: _(update after Cloud Run deploy)_
-- Frontend: _(update after deploy)_
+- **Local backend:** http://localhost:8000
+- **Local frontend:** http://localhost:5173
+- **Cloud Run:** Requires GCP billing enabled on `promptwars-381948` — run `.\deploy.ps1` after enabling billing
+
+## Before Submitting on Hack2Skill
+
+1. Verify repo is public and under 10 MB
+2. Confirm single branch (`main` only)
+3. Copy repo URL: `https://github.com/Manas-Goojre/cultural-compass-ai`
+4. Log in to Hack2Skill → Prompt Wars Dashboard → Submissions Tab
+5. Paste the GitHub link and submit
 
 ## Demo Script
 

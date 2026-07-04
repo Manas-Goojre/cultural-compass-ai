@@ -79,7 +79,8 @@ class GeminiService:
                     raw = self._call_studio_api(system, user)
                     metrics.response_chars = len(raw)
                     parsed = json.loads(raw)
-                    return parsed, metrics.latency_ms
+                    latency_ms = metrics.latency_ms
+                    return parsed, latency_ms
                 except GeminiError as exc:
                     if exc.status_code == 429:
                         raise
@@ -92,12 +93,12 @@ class GeminiService:
                 if attempt < self.settings.gemini_max_retries:
                     time.sleep(0.5 * (attempt + 1))
 
-            # Vertex fallback
             try:
                 raw = self._call_vertex(system, user)
                 metrics.response_chars = len(raw)
                 parsed = json.loads(raw)
-                return parsed, metrics.latency_ms
+                latency_ms = metrics.latency_ms
+                return parsed, latency_ms
             except Exception as exc:
                 last_error = exc
                 logger.error("All Gemini paths failed: %s", exc)
