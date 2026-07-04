@@ -5,7 +5,7 @@ from app.ai.prompt_builder import PromptBuilder
 from app.ai.prompt_loader import PromptLoader
 from app.ai.response_validator import ResponseValidator
 from app.core.errors import GeminiError, ValidationError
-from app.models.travel import RefineRequest, TravelProfile
+from app.models.travel import RefineRequest, TravelProfile, TripPlanRequest
 
 
 class TravelService:
@@ -19,6 +19,7 @@ class TravelService:
         "itinerary": "travel/itinerary.yaml",
         "story": "travel/storytelling.yaml",
         "refine": "travel/refine.yaml",
+        "trip_plan": "travel/trip_planner.yaml",
     }
 
     REQUIRED_FIELDS = {
@@ -31,6 +32,7 @@ class TravelService:
         "itinerary": ["destination", "trip_title", "days"],
         "story": ["destination", "title", "story"],
         "refine": ["refined_summary", "updated_recommendations"],
+        "trip_plan": ["itinerary", "budget"],
     }
 
     def __init__(self):
@@ -101,3 +103,19 @@ class TravelService:
         variables = self.builder.build_profile_context(request.profile)
         variables.update(self.builder.build_refinement_context(request.prior_summary, request.refinement_request))
         return self._run("refine", variables)
+
+    def plan_trip(self, request: TripPlanRequest) -> dict[str, Any]:
+        variables = {
+            "destination": request.destination or "recommend the best fit for this profile",
+            "budget": request.budget or "flexible",
+            "days": request.days,
+            "travelers": request.travelers,
+            "travel_style": request.travel_style,
+            "interests": ", ".join(request.interests) or "general exploration",
+            "transport": request.transport or "any suitable option",
+            "hotel_preference": request.hotel_preference or "no preference",
+            "start_date": request.start_date or "flexible",
+            "currency": request.currency,
+            "language": request.language,
+        }
+        return self._run("trip_plan", variables)

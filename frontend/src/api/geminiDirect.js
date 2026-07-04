@@ -103,6 +103,22 @@ Theme: ${theme || "cultural immersion"}
 Write an immersive 3-4 paragraph travel story (paragraphs separated by blank lines). JSON shape:
 {"destination":string,"title":string,"story":string,"cultural_threads":[string],"mood":string,"confidence":"high|medium|low","uncertainty_notes":[string]}`),
 
+  planTrip: (req) =>
+    gen(`Plan a complete trip.
+- Destination: ${req.destination || "recommend best fit"}
+- Total budget: ${req.budget || "flexible"} ${req.currency}
+- Days: ${req.days}
+- Travelers: ${req.travelers}
+- Travel style: ${req.travel_style}
+- Interests: ${(req.interests || []).join(", ") || "general"}
+- Preferred transport: ${req.transport || "any"}
+- Hotel preference: ${req.hotel_preference || "no preference"}
+- Start date: ${req.start_date || "flexible"}
+
+Provide approximate lat/lng for every named place. Costs and coordinates are approximate.
+Respond with JSON shape:
+{"destination":string,"summary":string,"itinerary":[{"day":number,"date":string,"title":string,"morning":{"activity":string,"location":string,"lat":number,"lng":number},"afternoon":{"activity":string,"location":string,"lat":number,"lng":number},"evening":{"activity":string,"location":string,"lat":number,"lng":number},"night":{"activity":string,"location":string,"lat":number,"lng":number},"estimated_cost":string}],"budget":{"accommodation":string,"food":string,"transport":string,"entry_fees":string,"miscellaneous":string,"total":string,"currency":string},"hotels":[{"name":string,"type":string,"price_range":string,"why":string,"lat":number,"lng":number,"confidence":string}],"restaurants":[{"name":string,"cuisine":string,"must_try":string,"price_range":string,"lat":number,"lng":number,"confidence":string}],"hidden_gems":[{"name":string,"description":string,"why":string,"lat":number,"lng":number,"confidence":string}],"festivals":[{"name":string,"timing":string,"description":string,"verify_note":string}],"best_time_to_visit":[{"attraction":string,"best_time":string}],"travel_tips":[string],"cultural_etiquette":[string],"weather":{"overview":string,"suggestions":[string]},"packing_list":[string],"estimated_travel_time":string,"safety_tips":[string],"map_points":[{"name":string,"type":"stop|hotel|restaurant|gem","lat":number,"lng":number,"day":number}],"confidence":string,"uncertainty_notes":[string]}`),
+
   refine: (p, prior_summary, refinement_request) =>
     gen(`${ctx(p)}
 

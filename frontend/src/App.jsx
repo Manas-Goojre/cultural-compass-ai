@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { api, getAuthToken, getUser, setAuthToken, setUser } from "./api/client";
 import LoginScreen from "./components/LoginScreen";
@@ -8,10 +8,13 @@ import TripBuilder from "./components/TripBuilder";
 import DestinationCard from "./components/DestinationCard";
 import DestinationDetail from "./components/DestinationDetail";
 import RefinePanel from "./components/RefinePanel";
+import TripPlanner from "./components/TripPlanner";
 import Reveal from "./components/ui/Reveal";
 import TravelBackdrop from "./components/ui/TravelBackdrop";
-import { SkeletonCard } from "./components/ui/Skeleton";
+import { SkeletonCard, SkeletonLines } from "./components/ui/Skeleton";
 import { ToastProvider, useToast } from "./components/ui/Toast";
+
+const TripPlanResult = lazy(() => import("./components/TripPlanResult"));
 
 const DEFAULT_PROFILE = {
   interests: [],
@@ -37,6 +40,19 @@ const TAB_API = {
   story: api.story,
 };
 
+const DEFAULT_PLAN = {
+  destination: "",
+  budget: 2000,
+  days: 4,
+  travelers: 2,
+  travel_style: "adventure",
+  interests: ["Food", "Local Culture"],
+  transport: "Any",
+  hotel_preference: "Mid-range",
+  start_date: "",
+  currency: "USD",
+};
+
 function AppContent() {
   const notify = useToast();
   const [view, setView] = useState(getAuthToken() || !import.meta.env.VITE_GOOGLE_CLIENT_ID ? "app" : "login");
@@ -53,9 +69,15 @@ function AppContent() {
   const [refineLoading, setRefineLoading] = useState(false);
   const [health, setHealth] = useState(null);
 
+  const [mode, setMode] = useState("discover");
+  const [plan, setPlan] = useState(DEFAULT_PLAN);
+  const [planResult, setPlanResult] = useState(null);
+  const [planLoading, setPlanLoading] = useState(false);
+
   const builderRef = useRef(null);
   const resultsRef = useRef(null);
   const detailRef = useRef(null);
+  const planRef = useRef(null);
 
   useEffect(() => {
     api.health().then(setHealth).catch(() => setHealth({ status: "error" }));
@@ -189,6 +211,21 @@ function AppContent() {
     }
   };
 
+  const handlePlanTrip = async () => {
+    setPlanLoading(true);
+    setPlanResult(null);
+    setTimeout(() => scrollTo(planRef), 100);
+    try {
+      const result = await api.planTrip({ ...plan, budget: String(plan.budget) });
+      setPlanResult(result);
+      notify("Itinerary ready", "success");
+    } catch (err) {
+      notify(err.message);
+    } finally {
+      setPlanLoading(false);
+    }
+  };
+
   if (view === "login") {
     return (
       <LoginScreen
@@ -239,6 +276,59 @@ function AppContent() {
       <Hero onStart={() => scrollTo(builderRef)} onExample={handleExample} />
 
       <main className="max-w-7xl mx-auto px-4 pb-16 space-y-12 relative z-10">
+        <div className="flex justify-center">
+          <div className="glass rounded-full p-1 inline-flex gap-1" role="tablist" aria-label="App mode">
+            <button
+              role="tab"
+              aria-selected={mode === "discover"}
+              onClick={() => setMode("discover")}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                mode === "discover" ? "bg-gradient-to-r from-primary to-primary-deep text-white shadow-glow" : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              🧭 Discover
+            </button>
+            <button
+              role="tab"
+              aria-selected={mode === "planner"}
+              onClick={() => setMode("planner")}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                mode === "planner" ? "bg-gradient-to-r from-aurora to-teal-deep text-white shadow-glow-teal" : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              🗺️ AI Trip Planner
+            </button>
+          </div>
+        </div>
+
+        {mode === "planner" && (
+          <div ref={planRef} className="scroll-mt-24 space-y-8">
+            <Reveal>
+              <TripPlanner plan={plan} setPlan={setPlan} onSubmit={handlePlanTrip} loading={planLoading} />
+            </Reveal>
+            {planLoading && (
+              <div className="glass-card rounded-3xl p-8">
+                <div className="flex items-center gap-3 mb-6 text-slate-300">
+                  <div className="flex items-center gap-1.5">
+                    <span className="typing-dot" />
+                    <span className="typing-dot" style={{ animationDelay: "0.2s" }} />
+                    <span className="typing-dot" style={{ animationDelay: "0.4s" }} />
+                  </div>
+                  <span className="text-sm">Your AI travel consultant is designing the perfect itinerary…</span>
+                </div>
+                <SkeletonLines count={8} />
+              </div>
+            )}
+            {!planLoading && planResult && (
+              <Suspense fallback={<div className="glass-card rounded-3xl p-8"><SkeletonLines count={6} /></div>}>
+                <TripPlanResult data={planResult} />
+              </Suspense>
+            )}
+          </div>
+        )}
+
+        {mode === "discover" && (
+          <>
         <PopularDestinations onPick={handlePopular} />
 
         <div ref={builderRef} className="scroll-mt-24">
@@ -314,6 +404,8 @@ function AppContent() {
               />
             </section>
           </div>
+        )}
+          </>
         )}
       </main>
 

@@ -41,3 +41,17 @@ class RefineRequest(BaseModel):
     profile: TravelProfile
     prior_summary: str
     refinement_request: str
+
+
+class TripPlanRequest(BaseModel):
+    destination: str | None = None
+    budget: str | None = None
+    days: int = Field(default=3, ge=1, le=30)
+    travelers: int = Field(default=1, ge=1, le=30)
+    travel_style: str = "solo"
+    interests: list[str] = Field(default_factory=list)
+    transport: str | None = None
+    hotel_preference: str | None = None
+    start_date: str | None = None
+    currency: str = "USD"
+    language: str = "en"

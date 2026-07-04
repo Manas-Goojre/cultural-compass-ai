@@ -108,4 +108,9 @@ export const api = {
       () => apiFetch("/api/travel/refine", { method: "POST", body: JSON.stringify({ profile, prior_summary, refinement_request }) }),
       () => direct.refine(profile, prior_summary, refinement_request)
     ),
+  planTrip: (req) =>
+    withFallback(
+      () => apiFetch("/api/travel/plan", { method: "POST", body: JSON.stringify(req) }),
+      () => direct.planTrip(req)
+    ),
 };

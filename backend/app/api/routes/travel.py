@@ -8,6 +8,7 @@ from app.models.travel import (
     ItineraryRequest,
     RefineRequest,
     StoryRequest,
+    TripPlanRequest,
 )
 from app.api.dependencies import get_current_user
 from app.services.travel_service import TravelService
@@ -73,3 +74,8 @@ def story(body: StoryRequest, user: UserInfo = Depends(get_current_user)):
 @router.post("/refine")
 def refine(body: RefineRequest, user: UserInfo = Depends(get_current_user)):
     return travel_service.refine_recommendations(body)
+
+
+@router.post("/plan")
+def plan_trip(body: TripPlanRequest, user: UserInfo = Depends(get_current_user)):
+    return travel_service.plan_trip(body)

@@ -1,0 +1,77 @@
+system: |
+  You are Cultural Compass Trip Architect — an expert AI travel consultant who designs complete,
+  realistic, day-by-day itineraries. You optimize for the traveler's budget, style and interests.
+  Provide approximate latitude/longitude for every named place so it can be mapped. Coordinates and
+  costs are approximate — set confidence to "low" and add uncertainty notes when unsure. Never invent
+  exact festival dates, prices, or hotel availability you are not confident about.
+user: |
+  Plan a complete trip with these details:
+  - Destination: {destination}
+  - Total budget: {budget} {currency}
+  - Number of days: {days}
+  - Number of travelers: {travelers}
+  - Travel style: {travel_style}
+  - Interests: {interests}
+  - Preferred transport: {transport}
+  - Hotel preference: {hotel_preference}
+  - Start date: {start_date}
+  - Language: {language}
+
+  Design a realistic day-by-day plan (morning, afternoon, evening, night) with approximate coordinates,
+  a full budget breakdown, recommended hotels, local restaurants, hidden gems, festivals if relevant,
+  best time to visit key attractions, travel tips, cultural etiquette, weather suggestions, a packing
+  list, estimated travel time, and safety tips. Populate map_points with every place that has coordinates.
+output_schema:
+  type: object
+  properties:
+    destination: {type: string}
+    summary: {type: string}
+    itinerary:
+      type: array
+      items:
+        type: object
+        properties:
+          day: {type: integer}
+          date: {type: string}
+          title: {type: string}
+          morning: {type: object, properties: {activity: {type: string}, location: {type: string}, lat: {type: number}, lng: {type: number}}}
+          afternoon: {type: object, properties: {activity: {type: string}, location: {type: string}, lat: {type: number}, lng: {type: number}}}
+          evening: {type: object, properties: {activity: {type: string}, location: {type: string}, lat: {type: number}, lng: {type: number}}}
+          night: {type: object, properties: {activity: {type: string}, location: {type: string}, lat: {type: number}, lng: {type: number}}}
+          estimated_cost: {type: string}
+    budget:
+      type: object
+      properties:
+        accommodation: {type: string}
+        food: {type: string}
+        transport: {type: string}
+        entry_fees: {type: string}
+        miscellaneous: {type: string}
+        total: {type: string}
+        currency: {type: string}
+    hotels:
+      type: array
+      items: {type: object, properties: {name: {type: string}, type: {type: string}, price_range: {type: string}, why: {type: string}, lat: {type: number}, lng: {type: number}, confidence: {type: string}}}
+    restaurants:
+      type: array
+      items: {type: object, properties: {name: {type: string}, cuisine: {type: string}, must_try: {type: string}, price_range: {type: string}, lat: {type: number}, lng: {type: number}, confidence: {type: string}}}
+    hidden_gems:
+      type: array
+      items: {type: object, properties: {name: {type: string}, description: {type: string}, why: {type: string}, lat: {type: number}, lng: {type: number}, confidence: {type: string}}}
+    festivals:
+      type: array
+      items: {type: object, properties: {name: {type: string}, timing: {type: string}, description: {type: string}, verify_note: {type: string}}}
+    best_time_to_visit:
+      type: array
+      items: {type: object, properties: {attraction: {type: string}, best_time: {type: string}}}
+    travel_tips: {type: array, items: {type: string}}
+    cultural_etiquette: {type: array, items: {type: string}}
+    weather: {type: object, properties: {overview: {type: string}, suggestions: {type: array, items: {type: string}}}}
+    packing_list: {type: array, items: {type: string}}
+    estimated_travel_time: {type: string}
+    safety_tips: {type: array, items: {type: string}}
+    map_points:
+      type: array
+      items: {type: object, properties: {name: {type: string}, type: {type: string, enum: [stop, hotel, restaurant, gem]}, lat: {type: number}, lng: {type: number}, day: {type: integer}}}
+    confidence: {type: string}
+    uncertainty_notes: {type: array, items: {type: string}}
